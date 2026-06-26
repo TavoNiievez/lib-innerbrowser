@@ -2012,6 +2012,43 @@ class InnerBrowser extends Module implements Web, PageSourceSaver, ElementLocato
         );
     }
 
+    /**
+     * Moves forward in history.
+     *
+     * @param int $numberOfSteps (default value 1)
+     */
+    public function moveForward(int $numberOfSteps = 1): void
+    {
+        $request = null;
+        if (!is_int($numberOfSteps) || $numberOfSteps < 1) {
+            throw new InvalidArgumentException('numberOfSteps must be positive integer');
+        }
+
+        try {
+            $history = $this->getRunningClient()->getHistory();
+            for ($i = $numberOfSteps; $i > 0; --$i) {
+                $request = $history->forward();
+            }
+        } catch (LogicException $exception) {
+            throw new InvalidArgumentException(
+                sprintf(
+                'numberOfSteps is set to %d, but there are only %d forward steps in the history',
+                $numberOfSteps,
+                $numberOfSteps - $i
+            ), $exception->getCode(), $exception);
+        }
+
+        $this->_loadPage(
+            $request->getMethod(),
+            $request->getUri(),
+            $request->getParameters(),
+            $request->getFiles(),
+            $request->getServer(),
+            $request->getContent(),
+            false
+        );
+    }
+
     protected function debugCookieJar(): void
     {
         $cookies = $this->client->getCookieJar()->all();
