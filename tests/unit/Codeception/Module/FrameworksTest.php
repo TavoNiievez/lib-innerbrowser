@@ -68,6 +68,17 @@ final class FrameworksTest extends TestsForWeb
         $this->module->seeCurrentUrlEquals('/iframe');
     }
 
+    public function testMoveBackPreservesForwardHistory()
+    {
+        $this->module->amOnPage('/iframe');
+        $this->module->amOnPage('/info');
+        $this->module->amOnPage('/');
+        $this->module->moveBack();
+        $this->module->seeCurrentUrlEquals('/info');
+        $this->module->moveBack();
+        $this->module->seeCurrentUrlEquals('/iframe');
+    }
+
     public function testMoveBackThrowsExceptionIfNumberOfStepsIsInvalid()
     {
         $this->module->amOnPage('/iframe');
